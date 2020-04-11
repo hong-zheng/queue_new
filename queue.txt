@@ -1,0 +1,128 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+// 数据结构
+// 容器上的特点，应用于不同的场景，做出特殊的操作
+// 队列的实现
+// 栈和队列不提供迭代器，一般不使用遍历
+// 不提供遍历是因为需要保持应有功能
+// 队列的判空使用是在使用的时候去判空
+typedef int	QDataType;
+typedef struct QNode{
+	struct QNode* _next;
+	QDataType _data;
+}QNode;
+typedef struct Queue{
+	QNode* _front;
+	QNode* _rear;
+	int _size;
+}Queue;
+QNode* createNode(QDataType data){
+
+	// 创建一个结点，将该结点赋予data值，同时下一个元素指向NULL
+	QNode* node = (QNode*)malloc(sizeof(QNode));
+	node->_data = data;
+	node->_next = NULL;
+	return node;
+}
+void queueInit(Queue* q){
+	// 初始化空队列
+	// 空队列中并无元素，因此前后都指向空
+	q->_front = q->_rear = NULL;
+	q->_size = 0;
+}
+// 队尾入队，考虑空队列
+void queuePush(Queue* q, QDataType data){
+	// 尾插操作
+	QNode* node = createNode(data);
+	if (q->_front == NULL){
+	// 考虑当前队列为空队列的情况，使首位都等于node
+		q->_front = q->_rear = node;
+	}
+	else{
+		q->_rear->_next = node;
+		q->_rear = node;
+	}
+	q->_size++;
+}
+// 队头出队，出队需要释放，需要考虑只有一个结点的情况
+void queuePop(Queue* q){
+/*	if (q->_front == NULL){
+		return NULL;
+	}else*/
+	if(q->_front){
+		// 记录下头的下一个结点
+		QNode* next = q->_front->_next;
+		// 释放头结点
+		free(q->_front);
+		//q->_front = NULL;
+		q->_front = next;
+
+		// 队列中只有一个元素，删除之后更新尾指针
+		if (q->_front == NULL)
+			q->_rear = NULL;
+		q->_size--;
+	}
+}
+// 获取队头元素
+QDataType queueFront(Queue* q){
+	return q->_front->_data;
+}
+// 获取队尾元素
+QDataType queueBack(Queue* q){
+	return  q->_rear->_data;
+}
+int queueSize(Queue* q){
+	//int cnt = 0;
+	//QNode* cur = q->_front;
+	//while (cur){
+	//	cnt++;
+	//	cur = cur->_next;
+	//}
+	//return cnt;
+	// 增加一个变量之后
+	return q->_size;
+}
+int queueEmpty(Queue* q){
+	if (q->_front == NULL)
+		return 1;
+	return 0;
+}
+void queueDestory(Queue* q){
+	//QNode* prev = q->_front;
+	QNode* cur = q->_front;
+	while (cur){
+		QNode* next = cur->_next;
+		free(cur);
+		cur = next;
+	}
+	q->_front = q->_rear = NULL;
+	q->_size = 0;
+}
+void test(){
+	Queue q;
+	queueInit(&q);
+	queuePush(&q, 1);
+	queuePush(&q, 2);
+	queuePush(&q, 3);
+	queuePush(&q, 4);
+	queuePush(&q, 5);
+	queuePush(&q, 6);
+	// 队的遍历
+	while (queueEmpty(&q) != 1){
+		printf("%d ",queueFront(&q));
+		queuePop(&q);
+	}
+	int cnt = queueSize(&q);
+	queuePop(&q);
+	queuePop(&q);
+	queuePop(&q);
+	queuePop(&q);
+}
+int main(){
+	test();
+	system("pause");
+	return 0;
+}
